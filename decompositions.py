@@ -23,6 +23,16 @@ import ternary
 
 # Helpers
 
+def edges_to_dictionary(edges):
+    """
+    Converts a list of edges to a dictionary for easy direct access.
+    """
+
+    d = dict()
+    for (a,b,v) in edges:
+        d[(a,b)] = v
+    return d
+
 def dot_product(a, b):
     """Dot product of two lists."""
     c = 0
@@ -38,6 +48,12 @@ def apply_beta(fitness_landscape, beta=1.):
     def func(pop):
         return map(lambda x: exp(beta*x), fitness_landscape(pop))
     return func
+
+def compute_next_state(state, inc_index, dec_index):
+    new_state = list(state)
+    new_state[inc_index] += 1
+    new_state[dec_index] -= 1
+    return tuple(new_state)
 
 ## Yen decomposition figures
 
@@ -221,9 +237,10 @@ def population_from_indices(types, indices):
     pop2 = list(tuple(types))
     pop2[indices[0]] += 1
     pop2[indices[1]] -= 1
-    return pop1, pop2
+    return tuple(pop1), tuple(pop2)
 
-def yen_decompositions_3(N, fitness_landscape, mu, index_1, index_2):
+def yen_decompositions_3(N, fitness_landscape, mu, index_1, index_2,
+                         transition_dict=None):
     """
     Computes the individual components of yen for the Moran process for three
     types. Assumes small mutations \mu for valid Taylor expansion.
@@ -240,6 +257,9 @@ def yen_decompositions_3(N, fitness_landscape, mu, index_1, index_2):
         The population type to increase
     index_2, integer in [0, 1, 2]
         The population type to decrease
+    transition_dict, dict((state, state): transition (float)
+        The exact transition dict, used for exact yen calculations, if
+        available
 
     Returns
     -------
@@ -289,7 +309,12 @@ def yen_decompositions_3(N, fitness_landscape, mu, index_1, index_2):
             results["mutation"][pop1] = mutation
 
             # Yen (sum of all terms)
-            yen = drift + adaptation + r + mutation
+            if transition_dict:
+                # compute the exact value
+                yen = log(transition_dict[(pop2, pop1)]) - log( transition_dict[(pop1, pop2)])
+            else:
+                # Sum the components
+                yen = drift + adaptation + r + mutation
             results["yen"][pop1] = yen
         except:
             # Division by zero or ValueError from the boundary
@@ -304,7 +329,7 @@ def decomposition_heatmaps_3(N, m, mu=None, incentive_func=fermi, beta=0.1, inde
     """
 
     if not mu:
-        mu = 1./N
+        mu = 1. / N
 
     fitness_landscape = apply_beta(linear_fitness_landscape(m), beta=beta)
 
@@ -315,9 +340,11 @@ def decomposition_heatmaps_3(N, m, mu=None, incentive_func=fermi, beta=0.1, inde
     s = stationary.stationary_distribution(edges)
 
     # Compute the yen decompositions
-    results = yen_decompositions_3(N, fitness_landscape, mu, index_1, index_2)
+    transition_dict = edges_to_dictionary(edges)
+    results = yen_decompositions_3(N, fitness_landscape, mu, index_1, index_2,
+                                   transition_dict=transition_dict)
 
-    # Plot everything in a 3x3 grid
+    # Plot everything in a 3x2 grid
     figure = pyplot.figure(figsize=(30, 18))
     gs = gridspec.GridSpec(2, 3)
 
@@ -335,8 +362,162 @@ def decomposition_heatmaps_3(N, m, mu=None, incentive_func=fermi, beta=0.1, inde
         ternary_ax.set_title(title)
     return figure
 
+def decomposition_maximum_component(N, fitness_landscape, mu=None, incentive_func=fermi, beta=0.1, index_1=0, index_2=1, results=None):
+    """
+    Finds the maximum (in absolute value) component of the yen decomposition.
+    """
+
+    if not results:
+        results = yen_decompositions_3(N, fitness_landscape, mu, index_1, index_2)
+    keys = ["adaptation", "relative_fitness", "drift", "mutation"]
+    maximum_components = dict()
+    for state in simplex_iterator(N):
+        max_value = 0
+        max_key = None
+        for key in keys:
+            try:
+                value = abs(results[key][state])
+            except KeyError:
+                continue
+            if value > max_value:
+                max_value = value
+                max_key = key
+        maximum_components[state] = (max_key, max_value)
+    return maximum_components
+
+def decomposition_maximum_component_figure(N, m, mu=None, incentive_func=fermi, beta=0.1):
+    """
+    Plots the maximum component of the Yen decomposition for three type Moran processes with mutation, for all six outgoing transitions. Also computes
+    the minimum outgoing and maximum incoming yens for comparison with the
+    stationary distribution.
+
+    Note: decomposition valid for small mu only! (Taylor expansion)
+    """
+
+    if not mu:
+        mu = 1./N
+
+    fitness_landscape = apply_beta(linear_fitness_landscape(m), beta=beta)
+
+    #color_map = dict(zip(["adaptation", "relative_fitness", "drift", "mutation"], [0, 1, 2, 3])) 
+
+    # red, green, blue, purple
+    color_map = dict(zip(["adaptation", "relative_fitness", "drift", "mutation"], [(1, 0, 0, 1), (0, 1, 0, 1), (0, 0, 1, 1), (1, 0, 1, 1)])) 
+
+    # Compute the stationary distribution
+    edges = incentive_process.compute_edges(N=N, m=m, mu=mu, num_types=3,
+                                            incentive_func=incentive_func,
+                                            beta=beta)
+    s = stationary.stationary_distribution(edges)
+
+    # Compute the yen decompositions
+    transition_dict = edges_to_dictionary(edges)
+    keys = [(0, 1), (1, 2), (2, 0), (1, 0), (2, 1), (0, 2)]
+    # First cache the yen decompositions
+    yen_decomps = dict()
+    for key in keys:
+        y = yen_decompositions_3(N, fitness_landscape, mu, index_1=key[0],
+                             index_2=key[1], transition_dict=transition_dict)
+        yen_decomps[key] = y
+
+    # Find the maximum component for each state and transition direction
+    maximum_components_dict = dict()
+    for key in keys:
+        max_comp = decomposition_maximum_component(N, fitness_landscape=fitness_landscape, mu=mu, incentive_func=incentive_func, beta=beta, index_1=key[0], index_2=key[1], results=yen_decomps[key])
+        # Map components to colors
+        d = dict()
+        for k, v in max_comp.items():
+            try:
+                d[k] = color_map[v[0]]
+            except KeyError:
+                continue
+        maximum_components_dict[key] = d
+
+    # Find the min outgoing transition
+    min_outgoing = dict()
+    for state in simplex_iterator(N):
+        values = []
+        for key in [(0, 1), (1, 2), (2, 0), (1, 0), (2, 1), (0, 2)]:
+            try:
+                values.append(yen_decomps[key]["yen"][state])
+            except KeyError:
+                continue
+        try:
+            min_outgoing[state] = min(values)
+        except ValueError:
+            continue
+
+    # Find the max incoming transition
+    max_incoming = dict()
+    for state in simplex_iterator(N):
+        values = []
+        for key in [(0, 1), (1, 2), (2, 0), (1, 0), (2, 1), (0, 2)]:
+            new_state = compute_next_state(state, key[0], key[1])
+            new_key = (key[1], key[0])
+            try:
+                values.append(yen_decomps[new_key]["yen"][new_state])
+            except KeyError:
+                continue
+        try:
+            max_incoming[state] = max(values)
+        except ValueError:
+            continue
+
+    # Plot everything in a 3x2 grid
+    figure = pyplot.figure(figsize=(20, 10))
+    gs = gridspec.GridSpec(3, 3)
+
+    plot_params = [(0, 0, (0, 1), "(0, 1) transition"),
+                   (0, 1, (1, 2), "(1, 2) transition"),
+                   (0, 2, (2, 0), "(2, 0) transition"),
+                   (1, 0, (1, 0), "(1, 0) transition"),
+                   (1, 1, (2, 1), "(2, 1) transition"),
+                   (1, 2, (0, 2), "(0, 2) transition"),
+                   ]
+                   #(1, 2, "Stationary", s)]
+
+    for i, j, key, title in plot_params:
+        ax = pyplot.subplot(gs[i, j])
+        data = maximum_components_dict[key]
+        ternary_ax = ternary.TernaryAxesSubplot(ax=ax, scale=N)
+        ternary_ax.heatmap(data, style="hexagonal", scientific=True, 
+                           colormap=False)
+        ternary_ax.set_title(title)
+
+    # Third row : max incoming, min outgoing, stationary
+
+    # Plot stationary
+    ax = pyplot.subplot(gs[2,1])
+    ternary_ax = ternary.TernaryAxesSubplot(ax=ax, scale=N)
+    ternary_ax.heatmap(s, style="hexagonal", scientific=True)
+    ternary_ax.set_title("Stationary")
+
+    # Plot min_outgoing
+    ax = pyplot.subplot(gs[2,0])
+    ternary_ax = ternary.TernaryAxesSubplot(ax=ax, scale=N)
+    ternary_ax.heatmap(min_outgoing, style="hexagonal", scientific=True)
+    ternary_ax.set_title("Min Outgoing Yen")
+
+    # Plot max_incoming
+    ax = pyplot.subplot(gs[2,2])
+    ternary_ax = ternary.TernaryAxesSubplot(ax=ax, scale=N)
+    ternary_ax.heatmap(max_incoming, style="hexagonal", scientific=True)
+    ternary_ax.set_title("Max Incoming Yen")
+
+    return figure
+
 
 if __name__ == "__main__":
+    N = 20
+    mu = 3. / (2 * N)
+    beta = 0.1
+    #m = [[0, 1, 1], [1, 0, 1], [1, 1, 0]]
+    m = [[0, 1, -1], [-1, 0, 1], [1, -1, 0]]
+
+    decomposition_maximum_component_figure(N, m, mu)
+    pyplot.show()
+    exit()
+
     ## Examples
     # Two types
     N = 40
