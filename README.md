@@ -24,12 +24,12 @@ landscapes defined by the following matrices:
 We can plot the decompositions as follows:
 
 <div style="text-align:center">
-<img src ="/two_type_decompositions/0.png" width="50%/><br/>
-<img src ="/two_type_decompositions/1.png" width="50%/><br/>
-<img src ="/two_type_decompositions/2.png" width="50%/><br/>
-<img src ="/two_type_decompositions/3.png" width="50%/><br/>
-<img src ="/two_type_decompositions/4.png" width="50%/><br/>
-<img src ="/two_type_decompositions/5.png" width="50%/><br/>
+<img src ="/two_type_decompositions/0.png" width="50%"/><br/>
+<img src ="/two_type_decompositions/1.png" width="50%"/><br/>
+<img src ="/two_type_decompositions/2.png" width="50%"/><br/>
+<img src ="/two_type_decompositions/3.png" width="50%"/><br/>
+<img src ="/two_type_decompositions/4.png" width="50%"/><br/>
+<img src ="/two_type_decompositions/5.png" width="50%"/><br/>
 </div>
 
 Examples: Three Types
@@ -46,7 +46,7 @@ For populations of three types, there are three directions in which one can comp
 We have three decomposition directions::
 
 <div style="text-align:center">
-<img src ="/three_type_decompositions/16_0_1.png" width="50%/><br/>
-<img src ="/three_type_decompositions/16_1_2.png" width="50%/><br/>
-<img src ="/three_type_decompositions/16_2_0.png" width="50%/><br/>
+<img src ="/three_type_decompositions/16_0_1.png" width="50%"/><br/>
+<img src ="/three_type_decompositions/16_1_2.png" width="50%"/><br/>
+<img src ="/three_type_decompositions/16_2_0.png" width="50%"/><br/>
 </div>
