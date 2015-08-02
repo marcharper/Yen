@@ -123,11 +123,6 @@ def decomposition_bar_chart(N, m, mu=None):
                                             incentive_func=replicator)
     s = stationary.stationary_distribution(edges)
 
-    # Plot figures on a 2 x 1 grid
-    pyplot.figure()
-    gs = gridspec.GridSpec(3,1)
-    ax1 = pyplot.subplot(gs[0:2,0])
-    ax2 = pyplot.subplot(gs[2,0])
 
     # Compute the decompositions
     data = yen_decompositions_2(N, fitness_landscape, mu)
@@ -138,6 +133,12 @@ def decomposition_bar_chart(N, m, mu=None):
     del data["yen"] # Remove from the data dictionary
 
     # Yen Figure
+    # Plot figures on a 2 x 1 grid
+    figure = pyplot.figure(figsize=(30, 18))
+    gs = gridspec.GridSpec(3,1)
+    ax1 = pyplot.subplot(gs[0:2,0])
+    ax2 = pyplot.subplot(gs[2,0])
+
     # Plot the sum (yen) as a curve
     ax1.plot(yens, color="black", linewidth=2)
     ax1.set_title("Yen Decomposition")

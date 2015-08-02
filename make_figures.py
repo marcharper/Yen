@@ -13,6 +13,12 @@ def ensure_directory(directory):
     if not os.path.isdir(directory):
         os.mkdir(directory)
 
+def ensure_digits(num, s):
+    """Prepends a string s with zeros to enforce a set num of digits."""
+    if len(s) < num:
+        return "0"*(num - len(s)) + s
+    return s
+
 # Sample matrices for fitness landscapes
 
 def two_type_matrices():
@@ -35,12 +41,14 @@ def three_type_matrices():
 
 # Two type populations
 
-def decomposition_bar_charts(N=20):
+def decomposition_bar_charts(N=30, directory="two_type_decompositions"):
     # Decomposition Bar Charts, two types
     N = 20
+    ensure_directory(directory)
     for i, m in enumerate(two_type_matrices()):
         decomposition_bar_chart(N, m)
-        pyplot.savefig("yen_decomp_2-" + str(i) + ".png")
+        filename = os.path.join(directory, "%s.png" % (i,))
+        pyplot.savefig(filename)
         pyplot.clf()
 
 # Three type populations
@@ -58,6 +66,6 @@ def heatmaps_bomze(N=40, mu=None, beta=0.1, directory="three_type_decompositions
             pyplot.clf()
 
 if __name__ == "__main__":
-    #decomposition_bar_charts()
-    heatmaps_bomze(N=20)
+    decomposition_bar_charts()
+    #heatmaps_bomze(N=20)
 
