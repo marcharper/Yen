@@ -61,11 +61,11 @@ def heatmaps_bomze(N=40, mu=None, beta=0.1, directory="three_type_decompositions
         for index_1, index_2 in [(0,1), (1,2), (2,0)]:
             fig = decomposition_heatmaps_3(N, m, mu=mu, beta=beta, index_1=index_1, index_2=index_2)
             filename = os.path.join(directory, "%s_%s_%s.png" % (i,index_1, index_2))
-            pyplot.savefig(filename, dpi=600)
+            pyplot.savefig(filename, dpi=200)
             pyplot.close(fig)
             pyplot.clf()
 
 if __name__ == "__main__":
-    decomposition_bar_charts()
-    #heatmaps_bomze(N=20)
+    #decomposition_bar_charts()
+    heatmaps_bomze(N=20)
 
