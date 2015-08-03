@@ -137,7 +137,7 @@ def decomposition_bar_chart(N, m, mu=None):
     # Compute the stationary distribution
     edges = incentive_process.compute_edges(N=N, m=m, mu=mu,
                                             incentive_func=replicator)
-    s = stationary.stationary_distribution(edges)
+    s = stationary.stationary_distribution(edges, iterations=10000)
 
 
     # Compute the decompositions
@@ -337,7 +337,7 @@ def decomposition_heatmaps_3(N, m, mu=None, incentive_func=fermi, beta=0.1, inde
     edges = incentive_process.compute_edges(N=N, m=m, mu=mu, num_types=3,
                                             incentive_func=incentive_func,
                                             beta=beta)
-    s = stationary.stationary_distribution(edges)
+    s = stationary.stationary_distribution(edges, iterations=10000)
 
     # Compute the yen decompositions
     transition_dict = edges_to_dictionary(edges)
@@ -408,7 +408,7 @@ def decomposition_maximum_component_figure(N, m, mu=None, incentive_func=fermi, 
     edges = incentive_process.compute_edges(N=N, m=m, mu=mu, num_types=3,
                                             incentive_func=incentive_func,
                                             beta=beta)
-    s = stationary.stationary_distribution(edges)
+    s = stationary.stationary_distribution(edges, iterations=10000)
 
     # Compute the yen decompositions
     transition_dict = edges_to_dictionary(edges)
@@ -474,7 +474,6 @@ def decomposition_maximum_component_figure(N, m, mu=None, incentive_func=fermi, 
                    (1, 1, (2, 1), "(2, 1) transition"),
                    (1, 2, (0, 2), "(0, 2) transition"),
                    ]
-                   #(1, 2, "Stationary", s)]
 
     for i, j, key, title in plot_params:
         ax = pyplot.subplot(gs[i, j])
@@ -486,17 +485,17 @@ def decomposition_maximum_component_figure(N, m, mu=None, incentive_func=fermi, 
 
     # Third row : max incoming, min outgoing, stationary
 
-    # Plot stationary
-    ax = pyplot.subplot(gs[2,1])
-    ternary_ax = ternary.TernaryAxesSubplot(ax=ax, scale=N)
-    ternary_ax.heatmap(s, style="hexagonal", scientific=True)
-    ternary_ax.set_title("Stationary")
-
     # Plot min_outgoing
     ax = pyplot.subplot(gs[2,0])
     ternary_ax = ternary.TernaryAxesSubplot(ax=ax, scale=N)
     ternary_ax.heatmap(min_outgoing, style="hexagonal", scientific=True)
     ternary_ax.set_title("Min Outgoing Yen")
+
+    # Plot stationary
+    ax = pyplot.subplot(gs[2,1])
+    ternary_ax = ternary.TernaryAxesSubplot(ax=ax, scale=N)
+    ternary_ax.heatmap(s, style="hexagonal", scientific=True)
+    ternary_ax.set_title("Stationary")
 
     # Plot max_incoming
     ax = pyplot.subplot(gs[2,2])

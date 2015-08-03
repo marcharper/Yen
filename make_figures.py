@@ -57,11 +57,13 @@ def heatmaps_bomze(N=40, mu=None, beta=0.1, directory="three_type_decompositions
     if not mu:
         mu = 1./N
     ensure_directory(directory)
-    for i, m in enumerate(three_type_matrices()):
+    matrices = list(three_type_matrices())
+    for i, m in enumerate(matrices):
         for index_1, index_2 in [(0, 1), (1, 2), (2, 0), (1, 0), (2, 1), (0, 2)]:
             print i, index_1, index_2
             fig = decomposition_heatmaps_3(N, m, mu=mu, beta=beta, index_1=index_1, index_2=index_2)
-            filename = os.path.join(directory, "%s_%s_%s.png" % (i,index_1, index_2))
+            j = ensure_digits(2, str(i))
+            filename = os.path.join(directory, "%s_%s_%s.png" % (j, index_1, index_2))
             pyplot.savefig(filename, dpi=200)
             pyplot.close(fig)
             pyplot.clf()
@@ -71,15 +73,18 @@ def max_decomp_plots(N=40, mu=None, beta=0.1, directory="three_type_max_decomp")
         #mu = 1./N
         mu = 3. / (2 * N)
     ensure_directory(directory)
-    for i, m in enumerate(three_type_matrices()):
+    matrices = list(three_type_matrices())
+    for i, m in enumerate(matrices):
         print i
         fig = decomposition_maximum_component_figure(N, m, mu=mu, beta=beta)
-        filename = os.path.join(directory, "%s.png" % (i,))
+        j = ensure_digits(2, str(i))
+        filename = os.path.join(directory, "%s.png" % (j,))
         pyplot.savefig(filename, dpi=200)
         pyplot.close(fig)
         pyplot.clf()
 
 if __name__ == "__main__":
-    #decomposition_bar_charts()
-    heatmaps_bomze(N=40)
-    max_decomp_plots(N=40)
+    print "Generating figures -- this will take some time."
+    decomposition_bar_charts()
+    heatmaps_bomze(N=30)
+    max_decomp_plots(N=30)
