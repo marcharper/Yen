@@ -50,3 +50,18 @@ We have three decomposition directions::
 <img src ="/three_type_decompositions/16_1_2.png" width="50%"/><br/>
 <img src ="/three_type_decompositions/16_2_0.png" width="50%"/><br/>
 </div>
+
+Stationary distributions and phase portraits are avaialable [here](http://people.mbi.ucla.edu/marcharper/stationary_stable/3x3/incentive.html).
+
+We can also plot which "evolutionary force" contributes most to the action of
+the dynamic at each point, encoded by the following colors:
+
+* adaptation: red
+* relative_fitness: green
+* drift: blue
+* mutation: purple
+
+<div style="text-align:center">
+<img src ="/three_type_max_decomp/16.pn" width="80%"/><br/>
+<img src ="/three_type_max_decomp/47.png" width="80%"/><br/>
+</div>
