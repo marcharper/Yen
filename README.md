@@ -62,6 +62,6 @@ the dynamic at each point, encoded by the following colors:
 * mutation: purple
 
 <div style="text-align:center">
-<img src ="/three_type_max_decomp/16.pn" width="80%"/><br/>
+<img src ="/three_type_max_decomp/16.png" width="80%"/><br/>
 <img src ="/three_type_max_decomp/47.png" width="80%"/><br/>
 </div>
