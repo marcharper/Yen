@@ -2,8 +2,16 @@
 Systematically produce many yen-related plots.
 """
 
+import math
+
 import matplotlib
-matplotlib.use('AGG')
+#matplotlib.use('AGG')
+font = {'size': 20}
+matplotlib.rc('font', **font)
+from matplotlib import pyplot
+import colormaps as cmaps
+pyplot.register_cmap(name='viridis', cmap=cmaps.viridis)
+pyplot.set_cmap(cmaps.viridis)
 
 from decompositions import *
 
@@ -25,7 +33,7 @@ def two_type_matrices():
     matrices = [
         [[1, 1], [0, 1]], # tournament
         [[1, 0], [0, 1]], # neutral
-        [[2, 2], [1, 1]], # class Moran
+        [[2, 2], [1, 1]], # classic Moran
         [[1, 2], [2, 1]], # hawk-dove
         [[1, 3], [2, 1]], # asymmetric hawk-dove
         [[2, 1], [1, 2]], # coordination
@@ -43,7 +51,6 @@ def three_type_matrices():
 
 def decomposition_bar_charts(N=30, directory="two_type_decompositions"):
     # Decomposition Bar Charts, two types
-    N = 20
     ensure_directory(directory)
     for i, m in enumerate(two_type_matrices()):
         decomposition_bar_chart(N, m)
@@ -55,7 +62,7 @@ def decomposition_bar_charts(N=30, directory="two_type_decompositions"):
 
 def heatmaps_bomze(N=40, mu=None, beta=0.1, directory="three_type_decompositions"):
     if not mu:
-        mu = 1./N
+        mu = 3. / (2 * N)
     ensure_directory(directory)
     matrices = list(three_type_matrices())
     for i, m in enumerate(matrices):
@@ -83,8 +90,33 @@ def max_decomp_plots(N=40, mu=None, beta=0.1, directory="three_type_max_decomp")
         pyplot.close(fig)
         pyplot.clf()
 
+
+def max_decomp_test(N=30, mu=None, beta=0.1, directory="three_type_max_decomp"):
+    if not mu:
+        #mu = 1./N
+        mu = 3. / (2 * N)
+    ensure_directory(directory)
+    matrices = list(three_type_matrices())
+    m = matrices[7]
+    fig = decomposition_maximum_component_figure(N, m, mu=mu, beta=beta, cmap=cmaps.viridis)
+    filename = os.path.join(directory, "test.png")
+    pyplot.savefig(filename, dpi=400)
+    pyplot.close(fig)
+    pyplot.clf()
+
+
 if __name__ == "__main__":
     print "Generating figures -- this will take some time."
-    decomposition_bar_charts()
-    heatmaps_bomze(N=30)
-    max_decomp_plots(N=30)
+    #decomposition_bar_charts(N=40)
+    #heatmaps_bomze(N=60)
+    #max_decomp_plots(N=60)
+
+
+    N = 60
+    mu = 1./ math.pow(N, 1. / 2)
+    m = list(bomze_matrices())[16]
+    figure = decomposition_heatmaps_3(N=N, m=m, mu=mu, beta=1, index_1=0, index_2=1)
+    pyplot.show()
+
+    #max_decomp_test(N=60)
+
