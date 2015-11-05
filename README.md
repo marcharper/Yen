@@ -13,7 +13,7 @@ landscapes defined by the following matrices:
 ```
     matrices = [
         [[1, 1], [0, 1]], # tournament
-        [[1, 0], [0, 1]], # neutral
+        [[1, 1], [1, 1]], # neutral
         [[2, 2], [1, 1]], # class Moran
         [[1, 2], [2, 1]], # hawk-dove
         [[1, 3], [2, 1]], # asymmetric hawk-dove
