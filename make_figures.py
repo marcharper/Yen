@@ -32,7 +32,7 @@ def ensure_digits(num, s):
 def two_type_matrices():
     matrices = [
         [[1, 1], [0, 1]], # tournament
-        [[1, 0], [0, 1]], # neutral
+        [[1, 1], [1, 1]], # neutral
         [[2, 2], [1, 1]], # classic Moran
         [[1, 2], [2, 1]], # hawk-dove
         [[1, 3], [2, 1]], # asymmetric hawk-dove
@@ -107,9 +107,9 @@ def max_decomp_test(N=30, mu=None, beta=0.1, directory="three_type_max_decomp"):
 
 if __name__ == "__main__":
     print "Generating figures -- this will take some time."
-    #decomposition_bar_charts(N=40)
-    #heatmaps_bomze(N=60)
-    #max_decomp_plots(N=60)
+    decomposition_bar_charts(N=40)
+    heatmaps_bomze(N=60)
+    max_decomp_plots(N=60)
 
 
     N = 60
