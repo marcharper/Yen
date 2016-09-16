@@ -106,17 +106,17 @@ def max_decomp_test(N=30, mu=None, beta=0.1, directory="three_type_max_decomp"):
 
 
 if __name__ == "__main__":
-    print "Generating figures -- this will take some time."
-    decomposition_bar_charts(N=40)
-    heatmaps_bomze(N=60)
-    max_decomp_plots(N=60)
+    #print "Generating figures -- this will take some time."
+    #decomposition_bar_charts(N=40)
+    #heatmaps_bomze(N=60)
+    #max_decomp_plots(N=60)
 
 
-    N = 60
-    mu = 1./ math.pow(N, 1. / 2)
-    m = list(bomze_matrices())[16]
-    figure = decomposition_heatmaps_3(N=N, m=m, mu=mu, beta=1, index_1=0, index_2=1)
-    pyplot.show()
+    #N = 60
+    #mu = 1./ math.pow(N, 1. / 2)
+    #m = list(bomze_matrices())[16]
+    #figure = decomposition_heatmaps_3(N=N, m=m, mu=mu, beta=1, index_1=0, index_2=1)
+    #pyplot.show()
 
     #max_decomp_test(N=60)
 
