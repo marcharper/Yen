@@ -1,27 +1,9 @@
-
-# # Standard Libraries
-# from collections import defaultdict
-# from itertools import izip, islice
-# from math import log
-# import os
-#
-# import matplotlib
-# from matplotlib import pyplot
-# import matplotlib.gridspec as gridspec
-# import pandas
-
 import copy
 import random
 
 import numpy as np
 
-# # Github libraries from https://github.com/marcharper
-# import mpsim
-# import stationary
-# from stationary.processes import incentive_process
 from stationary.processes.incentives import replicator, fermi, linear_fitness_landscape
-# from stationary.utils.bomze import bomze_matrices
-# import ternary
 
 
 def yen_search(initial_state, neighbor_function, transition_function,
@@ -55,11 +37,11 @@ def yen_search(initial_state, neighbor_function, transition_function,
             if all(y < 0 for y in yens.values()):
                 return state
         # Move to next state
+        # Could use the Boltzmann distribution here for some stochasticity
         visited_states.append(state)
         min_value = min(yens.values())
         min_keys = [k for k in yens.keys() if yens[k] == min_value]
         next_state = random.choice(min_keys)
-        # next_state = min(yens.keys(), key=(lambda key: yens[key]))
         state = next_state
         if state in visited_states:
             return "Repeated State"
@@ -68,7 +50,9 @@ def two_type_test():
     """Test the yen search algorithm on the neutral fitness landscape for a
     two type Moran process with mutation. The algorithm should converge to (5, 5)
     for any starting position."""
+
     def neighbor_function(state):
+        # Neighbors of (i, N-i) are (i+1, N-i-1) and (i-1, N-i+1)
         i, j = state
         neighbors = []
         if i > 0:
@@ -78,6 +62,7 @@ def two_type_test():
         return neighbors
 
     def transition_function(source, target, mu=0.05):
+        # Neutral fitness landscape
         i1, j1 = source
         i2, j2 = target
         if i1 == 0:
@@ -86,9 +71,9 @@ def two_type_test():
             return mu
         N = float(i1 + j1)
         if j2 > j1:
-            return (i1 + (j1 - i1)* mu) / N ** 2 * j1
+            return (i1 + (j1 - i1) * mu) / N ** 2 * j1
         if j1 > j2:
-            return (j1 + (i1 - j1)* mu) / N ** 2 * i1
+            return (j1 + (i1 - j1) * mu) / N ** 2 * i1
 
     state = (1, 9)
     e = yen_search(state, neighbor_function, transition_function)
@@ -103,7 +88,8 @@ def graph_test():
     """Test yen search on large process -- a two type neutral Moran process on
     a cycle."""
     def neighbor_function(state):
-        """State in this case is a list of ones and zeroes."""
+        """States in this case are a list of ones and zeroes, i.e. a graph
+        coloring."""
         neighbors = []
         for i, t in enumerate(state):
             neighbor = copy.copy(list(state))
@@ -152,7 +138,7 @@ def graph_test():
     incentive = replicator(fitness_landscape)
 
     def transition_function2(source, target, mu=0.01):
-        """Non-neutral landscape."""
+        """Non-neutral landscape specified by a game matrix (above)"""
         # Find the state that differs
         for i, (s, t) in enumerate(zip(source, target)):
             if s != t:
@@ -186,9 +172,14 @@ def graph_test():
     e = yen_search(state, neighbor_function, transition_function2)
     print(e)
 
-    state = [0, 1] * 16
+    state = [0, 1] * 256
     e = yen_search(state, neighbor_function, transition_function2)
     print(e)
+
+    state = [0] * 256 + [1] * 256
+    e = yen_search(state, neighbor_function, transition_function2)
+    print(e)
+
 
 if __name__ == "__main__":
     # two_type_test()
