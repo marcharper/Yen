@@ -20,8 +20,11 @@ def yen_search(initial_state, neighbor_function, transition_function,
     visited_states = []
 
     state = initial_state
+    count = 0
     while True:
-        print(state)
+        count += 1
+        # print(state)
+        visited_states.append("".join(map(str, state)))
         neighbors = neighbor_function(state)
         yens = dict()
         for neighbor in neighbors:
@@ -32,19 +35,24 @@ def yen_search(initial_state, neighbor_function, transition_function,
         # Check for extremum
         if extrema.lower() == "max":
             if all(y > 0 for y in yens.values()):
-                return state
+                return count, state
         else:
             if all(y < 0 for y in yens.values()):
-                return state
+                return count, state
         # Move to next state
         # Could use the Boltzmann distribution here for some stochasticity
-        visited_states.append(state)
         min_value = min(yens.values())
         min_keys = [k for k in yens.keys() if yens[k] == min_value]
-        next_state = random.choice(min_keys)
-        state = next_state
-        if state in visited_states:
-            return "Repeated State"
+        random.shuffle(min_keys)
+        found = False
+        for candidate in min_keys:
+            c = "".join(map(str, candidate))
+            if c not in visited_states:
+                state = candidate
+                found = True
+                break
+        if not found:
+            return count, state, "Repeated State"
 
 def two_type_test():
     """Test the yen search algorithm on the neutral fitness landscape for a
@@ -172,7 +180,11 @@ def graph_test():
     e = yen_search(state, neighbor_function, transition_function2)
     print(e)
 
-    state = [0, 1] * 256
+    state = [0] * 8 + [1] * 8 + [0] * 8 + [1] * 8
+    e = yen_search(state, neighbor_function, transition_function2)
+    print(e)
+
+    state = [0, 1] * 64
     e = yen_search(state, neighbor_function, transition_function2)
     print(e)
 
@@ -180,6 +192,60 @@ def graph_test():
     e = yen_search(state, neighbor_function, transition_function2)
     print(e)
 
+    state = [0, 1] * 64 + [1] * 4
+    e = yen_search(state, neighbor_function, transition_function2,
+                   extrema='min')
+    print(e)
+
+    state = [0] * 32 + [1, 0] + [1] * 32
+    e = yen_search(state, neighbor_function, transition_function2,
+                   extrema='min')
+    print(e)
+
+    # transition_function3()
+
+    def transition_function3(source, target, mu=0.6):
+        """Non-neutral landscape specified by a game matrix (above)"""
+        # Find the state that differs
+        for i, (s, t) in enumerate(zip(source, target)):
+            if s != t:
+                break
+        # i is now the index of the state that differs
+        s = sum(source)
+        N = len(source)
+        population_state = (N - s, s)
+        inc = incentive(population_state)
+        denom = float(sum(inc))
+        indices = [i-1, i+1]
+        transition = 0.
+        for index in indices:
+            rep_type = source[index % N]
+            r = float(inc[rep_type]) / denom
+            if rep_type == s:
+                transition += r * (1 - mu)
+            else:
+                transition += r * mu
+        return transition
+
+    state = [0, 1, 0, 1, 0, 1, 0, 1, 1, 0]
+    e = yen_search(state, neighbor_function, transition_function3)
+    print(e)
+
+    state = [0, 1, 1, 0, 1, 1, 0, 0, 0, 1]
+    e = yen_search(state, neighbor_function, transition_function3)
+    print(e)
+
+    state = [0, 1] * 8
+    e = yen_search(state, neighbor_function, transition_function3)
+    print(e)
+
+    state = [0, 1] * 64
+    e = yen_search(state, neighbor_function, transition_function3)
+    print(e)
+
+    state = [0] * 128 + [1] * 128
+    e = yen_search(state, neighbor_function, transition_function3)
+    print(e)
 
 if __name__ == "__main__":
     # two_type_test()
