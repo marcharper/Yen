@@ -41,8 +41,11 @@ def yen_search(initial_state, neighbor_function, transition_function,
                 return count, state
         # Move to next state
         # Could use the Boltzmann distribution here for some stochasticity
-        min_value = min(yens.values())
-        min_keys = [k for k in yens.keys() if yens[k] == min_value]
+        if extrema.lower() == "max":
+            value = min(yens.values())
+        else:
+            value = max(yens.values())
+        min_keys = [k for k in yens.keys() if yens[k] == value]
         random.shuffle(min_keys)
         found = False
         for candidate in min_keys:
