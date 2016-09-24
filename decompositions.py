@@ -406,7 +406,7 @@ def decomposition_maximum_component(N, fitness_landscape, mu=None, incentive_fun
 
     if not results:
         results = yen_decompositions_3(N, fitness_landscape, mu, index_1, index_2)
-    keys = ["adaptation", "relative_fitness", "drift", "mutation"]
+    keys = ["fitness", "drift", "mutation"]
     maximum_components = dict()
     for state in simplex_iterator(N):
         max_value = 0
@@ -440,7 +440,9 @@ def decomposition_maximum_component_figure(N, m, mu=None, incentive_func=fermi, 
     #color_map = dict(zip(["adaptation", "relative_fitness", "drift", "mutation"], [0, 1, 2, 3])) 
 
     # red, green, blue, purple
-    color_map = dict(zip(["adaptation", "relative_fitness", "drift", "mutation"], [(1, 0, 0, 1), (0, 1, 0, 1), (0, 0, 1, 1), (1, 0, 1, 1)])) 
+    # color_map = dict(zip(["adaptation", "relative_fitness", "drift", "mutation"], [(1, 0, 0, 1), (0, 1, 0, 1), (0, 0, 1, 1), (1, 0, 1, 1)]))
+
+    color_map = dict(zip(["fitness", "drift", "mutation"], [(1, 0, 0, 1), (0, 1, 0, 1), (0, 0, 1, 1), (1, 0, 1, 1)]))
 
     # Compute the stationary distribution
     edges = incentive_process.compute_edges(N=N, m=m, mu=mu, num_types=3,
@@ -461,7 +463,9 @@ def decomposition_maximum_component_figure(N, m, mu=None, incentive_func=fermi, 
     # Find the maximum component for each state and transition direction
     maximum_components_dict = dict()
     for key in keys:
-        max_comp = decomposition_maximum_component(N, fitness_landscape=fitness_landscape, mu=mu, incentive_func=incentive_func, beta=beta, index_1=key[0], index_2=key[1], results=yen_decomps[key])
+        max_comp = decomposition_maximum_component(N, fitness_landscape=fitness_landscape, mu=mu,
+                                                   incentive_func=incentive_func, beta=beta, index_1=key[0],
+                                                   index_2=key[1], results=yen_decomps[key])
         # Map components to colors
         d = dict()
         for k, v in max_comp.items():
