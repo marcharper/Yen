@@ -111,12 +111,19 @@ if __name__ == "__main__":
     #heatmaps_bomze(N=60)
     #max_decomp_plots(N=60)
 
-
     #N = 60
     #mu = 1./ math.pow(N, 1. / 2)
+    # mu = 3./ (2*N)
+
     #m = list(bomze_matrices())[16]
+    # m = [[0,1,1], [1,0,1], [1,1,0]]
+
     #figure = decomposition_heatmaps_3(N=N, m=m, mu=mu, beta=1, index_1=0, index_2=1)
     #pyplot.show()
+
+    # decomposition_bar_charts(N=40)
+    #heatmaps_bomze(N=60)
+    max_decomp_plots(N=60)
 
     #max_decomp_test(N=60)
 

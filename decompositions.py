@@ -98,15 +98,22 @@ def yen_decompositions_2(N, fitness_landscape, mu):
         drift = - log(float(pop2[1] * pop2[0]) / (pop[0] * pop[1]))
         results["drift"].append(drift)
 
+        # # Adaptation / mean fitness term
+        # mean_1 = dot_product(fitness_landscape(pop), pop)
+        # mean_2 = dot_product(fitness_landscape(pop2), pop2)
+        # adaptation = log(float(mean_2) / mean_1)
+        # results["adaptation"].append(adaptation)
+        #
+        # # Relative fitness term
+        # relative_fitness = log(float(fitness_landscape(pop)[0]) / fitness_landscape(pop2)[1])
+        # results["relative_fitness"].append(relative_fitness)
+
         # Adaptation / mean fitness term
         mean_1 = dot_product(fitness_landscape(pop), pop)
         mean_2 = dot_product(fitness_landscape(pop2), pop2)
         adaptation = log(float(mean_2) / mean_1)
-        results["adaptation"].append(adaptation)
-
-        # Relative fitness term
         relative_fitness = log(float(fitness_landscape(pop)[0]) / fitness_landscape(pop2)[1])
-        results["relative_fitness"].append(relative_fitness)
+        results["fitness"].append(adaptation + relative_fitness)
 
         # Mutation term
         mutation = mu * (float(pop[1]) / pop[0] * fitness_landscape(pop)[1] / fitness_landscape(pop)[0] - pop2[0] / float(pop2[1]) * fitness_landscape(pop2)[0] / fitness_landscape(pop2)[1])
@@ -307,17 +314,27 @@ def yen_decompositions_3(N, fitness_landscape, mu, index_1, index_2,
             drift = -log(float(pop2[index_2] * pop2[index_1]) / (pop1[index_2] * pop1[index_1]))
             results["drift"][pop1] = drift
 
-            # Adaptation / mean fitness term
+            # # Adaptation / mean fitness term
+            # mean_1 = dot_product(fitness_landscape(pop1), pop1)
+            # mean_2 = dot_product(fitness_landscape(pop2), pop2)
+            # adaptation = log(mean_2 / mean_1)
+            # results["adaptation"][pop1] = adaptation
+            #
+            # # Relative fitness term
+            # fitness_1 = [fitness_landscape(pop1)[i] for i in [0,1,2]]
+            # fitness_2 = [fitness_landscape(pop2)[i] for i in [0,1,2]]
+            # r = log(float(fitness_1[index_1]) / fitness_2[index_2])
+            # results["relative_fitness"][pop1] = r
+
+            # Fitness
             mean_1 = dot_product(fitness_landscape(pop1), pop1)
             mean_2 = dot_product(fitness_landscape(pop2), pop2)
             adaptation = log(mean_2 / mean_1)
-            results["adaptation"][pop1] = adaptation
-
-            # Relative fitness term
             fitness_1 = [fitness_landscape(pop1)[i] for i in [0,1,2]]
             fitness_2 = [fitness_landscape(pop2)[i] for i in [0,1,2]]
             r = log(float(fitness_1[index_1]) / fitness_2[index_2])
-            results["relative_fitness"][pop1] = r
+            results["fitness"][pop1] = adaptation + r
+
 
             # Mutation term
             mutation = mu *( (pop1[index_2]/2. * fitness_1[index_2] + pop1[index_3]/2.* fitness_2[index_3]) / pop1[index_1]*fitness_1[index_1] - ((pop2[index_1])/2 * fitness_2[index_1] + pop2[index_3]/2.*fitness_2[index_3])/((pop2[index_2])*fitness_1[index_2]) )
@@ -361,8 +378,15 @@ def decomposition_heatmaps_3(N, m, mu=None, incentive_func=fermi, beta=0.1, inde
     figure = pyplot.figure(figsize=(30, 18))
     gs = gridspec.GridSpec(2, 3)
 
-    plot_params = [(0, 0, "Adaptation", results["adaptation"]),
-                   (1, 0, "Relative fitness", results["relative_fitness"]),
+    # plot_params = [(0, 0, "Adaptation", results["adaptation"]),
+    #                (1, 0, "Relative fitness", results["relative_fitness"]),
+    #                (0, 1, "Drift", results["drift"]),
+    #                (1, 1, "Mutation", results["mutation"]),
+    #                (0, 2, "Yen", results["yen"]),
+    #                (1, 2, "Stationary", s)]
+
+    plot_params = [(0, 0, "Fitness", results["fitness"]),
+                   # (1, 0, "Relative fitness", results["relative_fitness"]),
                    (0, 1, "Drift", results["drift"]),
                    (1, 1, "Mutation", results["mutation"]),
                    (0, 2, "Yen", results["yen"]),
